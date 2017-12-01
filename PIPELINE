@@ -1,5 +1,3 @@
-# Computational pipeline for de novo assembly of Capillaria like transcripts
-
 #!/bin/bash
 
 file_base=$1
