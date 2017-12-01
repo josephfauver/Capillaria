@@ -1,8 +1,40 @@
-# 
-#
-#
 # Computational pipeline for de novo assembly of Capillaria like transcripts
+
+#!/bin/bash
+
+file_base=$1
+
+f1=${file_base}.end1.fastq
+f2=${file_base}.end2.fastq
+
+java1=/gapp/x64linux/opt/java/jre/jre1.8.0_31/bin/java
+
+DIAMOND=/gscmnt/gc2732/mitrevalab/TOOLS/SOFTWARE/DIAMOND/diamond-master
+
+TRIMMOMATIC=/gscmnt/gc2732/mitrevalab/TOOLS/SOFTWARE/TRIMMOMATIC/Trimmomatic-0.36
+
+SPADES=/gscmnt/gc2732/mitrevalab/TOOLS/SOFTWARE/SPADES/SPAdes-3.11.1-Linux/bin
+
+#Reference Databases
+
+TRIM_ADAP=/gscmnt/gc2732/mitrevalab/RESOURCES/databases/Adapters/adapters.may-14-2014.fasta
+
+NCBI_NR=/gscmnt/gc2732/mitrevalab/RESOURCES/databases/GenBank_FULL_nr/nr.downloaded_170825.faa
+
+#Remove adapter sequences with TRIMMOMATIC
+
+$java1 -jar $TRIMMOMATIC trimmomatic-0.36.jar PE -threads 8 -phred33 -trimlog TRIMLOG.txt $f1 $f2 ${file_base}.end1_f.fastq ${file_base}.end1_ORPHAN.fastq ${file_base}.end2_f.fastq ${file_base}.end2_ORPHAN.fastq ILLUMINACLIP:$TRIM_ADAP:2:30:10 SLIDINGWINDOW:5:20 LEADING:20 TRAILING:20 MINLEN:60
+
+$f1=${file_base}.end1_f.fastq
+$f2=${file_base}.end2_f.fastq
+
+#Create contigs using SPAdes asembler
+
+$SPADES spades.py --rna -o ${file_base}.spades --pe1-1 $f1 --pe1-2 $f2
+
+#STOP AND ASSESS
 #
-#
-#
-#
+#Determine protein level similarity of contigs using DIAMOND
+#NEED TO CREATE DIAMOND DATABASE FOR TRICHURIS TRICHURIA
+
+$DIAMOND diamond blastx -d NCBI_NR -q SPADECONTIGSXXXX.fasta -o OUTPUTXXXX.m8
