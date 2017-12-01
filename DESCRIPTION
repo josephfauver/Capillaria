@@ -11,7 +11,6 @@
 #
 # Computational Strategy:
 # 1. Trim reads using TRIMMOMATIC
-# 2. Collapose to unique reads using piccard-tools MARKDUPLICATES
 # 3. Create contigs using SPAdes assembler
 #   a. start with just contigs greater than read length
 #     i. Do not map contig to human/bacterial genomes prior to taxonomic assesment, if they make up majority of contigs remove them
