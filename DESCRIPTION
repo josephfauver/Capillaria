@@ -10,5 +10,15 @@
 # Single stool sample containing Capillaria like eggs. PolyA selection. RNA-Seq HiSeqXXX using XXX kit 2xXXX
 #
 # Computational Strategy:
-# 
+# 1. Trim reads using TRIMMOMATIC
+# 2. Collapose to unique reads using piccard-tools MARKDUPLICATES
+# 3. Create contigs using SPAdes assembler
+#   a. start with just contigs greater than read length
+#     i. Do not map contig to human/bacterial genomes prior to taxonomic assesment, if they make up majority of contigs remove them
+#   b. consider using orphan reads as well
+# 4. Translate contigs in all 6 possible ORFs, blast using DIAMOND (will need to adjust parameters for evalue, %id, etc.) 
+#   a. against "reference" proteome (Trichuria trichuris)
+#   b. against NCBI nr database
+# 5. Maybe use Mark's tally_hits python scripts to process output of blastx
+#  
 #
