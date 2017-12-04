@@ -35,4 +35,4 @@ $SPADES spades.py --rna -o ${file_base}.spades --pe1-1 $f1 --pe1-2 $f2
 #Determine protein level similarity of contigs using DIAMOND
 #NEED TO CREATE DIAMOND DATABASE FOR TRICHURIS TRICHURIA
 
-$DIAMOND diamond blastx -d NCBI_NR -q SPADECONTIGSXXXX.fasta -o OUTPUTXXXX.m8
+#$DIAMOND diamond blastx -d NCBI_NR -q SPADECONTIGSXXXX.fasta -o OUTPUTXXXX.m8
