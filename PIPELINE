@@ -15,6 +15,8 @@ SPADES=/gscmnt/gc2732/mitrevalab/TOOLS/SOFTWARE/SPADES/SPAdes-3.11.1-Linux/bin/s
 
 MEGAN6=/gscmnt/gc2732/mitrevalab/TOOLS/SOFTWARE/MEGAN6/MEGAN_Community_unix_6_8_18.sh
 
+CDHIT=/gscmnt/gc2732/mitrevalab/TOOLS/SOFTWARE/CDHIT/cdhit-master/cd-hit-est
+
 #Reference Databases
 
 TRIM_ADAP=/gscmnt/gc2732/mitrevalab/RESOURCES/databases/Adapters/adapters.may-14-2014.fasta
@@ -27,8 +29,15 @@ Nem_C1_Human_PEP=/gscmnt/gc2732/mitrevalab/collab/jofauver/Capillaria/capillaria
 
 $java1 -jar $TRIMMOMATIC PE -threads 8 -phred33 -trimlog TRIMLOG.txt $f1 $f2 ${file_base}.end1_f.fastq ${file_base}.end1_ORPHAN.fastq ${file_base}.end2_f.fastq ${file_base}.end2_ORPHAN.fastq ILLUMINACLIP:$TRIM_ADAP:2:30:10 SLIDINGWINDOW:5:20 LEADING:20 TRAILING:20 MINLEN:60
 
-$f1=${file_base}.end1_f.fastq
-$f2=${file_base}.end2_f.fastq
+f1=${file_base}.end1_f.fastq
+f2=${file_base}.end2_f.fastq
+
+#Collapse to unique reads using CD-HIT-EST
+
+$CDHIT -i $f1 -j $f2 -o ${file_base}.end1_fu.fastq -op ${file_base}.end2_fu.fastq
+
+f1=${file_base}.end1_fu.fastq
+f2=${file_base}.end2_fu.fastq
 
 #Create contigs using SPAdes asembler
 
