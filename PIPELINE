@@ -2,16 +2,18 @@
 
 file_base=$1
 
-f1=${file_base}.end1.fastq
-f2=${file_base}.end2.fastq
+f1=${file_base}.end1.fq
+f2=${file_base}.end2.fq
 
 java1=/gapp/x64linux/opt/java/jre/jre1.8.0_31/bin/java
 
-DIAMOND=/gscmnt/gc2732/mitrevalab/TOOLS/SOFTWARE/DIAMOND/diamond-master
+DIAMOND=/gscmnt/gc2732/mitrevalab/TOOLS/SOFTWARE/DIAMOND/diamond-master/diamond
 
-TRIMMOMATIC=/gscmnt/gc2732/mitrevalab/TOOLS/SOFTWARE/TRIMMOMATIC/Trimmomatic-0.36
+TRIMMOMATIC=/gscmnt/gc2732/mitrevalab/TOOLS/SOFTWARE/TRIMMOMATIC/Trimmomatic-0.36/trimmomatic-0.36.jar
 
-SPADES=/gscmnt/gc2732/mitrevalab/TOOLS/SOFTWARE/SPADES/SPAdes-3.11.1-Linux/bin
+SPADES=/gscmnt/gc2732/mitrevalab/TOOLS/SOFTWARE/SPADES/SPAdes-3.11.1-Linux/bin/spades.py
+
+MEGAN6=/gscmnt/gc2732/mitrevalab/TOOLS/SOFTWARE/MEGAN6/MEGAN_Community_unix_6_8_18.sh
 
 #Reference Databases
 
@@ -19,20 +21,34 @@ TRIM_ADAP=/gscmnt/gc2732/mitrevalab/RESOURCES/databases/Adapters/adapters.may-14
 
 NCBI_NR=/gscmnt/gc2732/mitrevalab/RESOURCES/databases/GenBank_FULL_nr/nr.downloaded_170825.faa
 
+Nem_C1_Human_PEP=/gscmnt/gc2732/mitrevalab/collab/jofauver/Capillaria/capillaria.spades/DIAMOND/DIAMOND_db/Nem_C1_Human_Pep.dmnd
+
 #Remove adapter sequences with TRIMMOMATIC
 
-$java1 -jar $TRIMMOMATIC trimmomatic-0.36.jar PE -threads 8 -phred33 -trimlog TRIMLOG.txt $f1 $f2 ${file_base}.end1_f.fastq ${file_base}.end1_ORPHAN.fastq ${file_base}.end2_f.fastq ${file_base}.end2_ORPHAN.fastq ILLUMINACLIP:$TRIM_ADAP:2:30:10 SLIDINGWINDOW:5:20 LEADING:20 TRAILING:20 MINLEN:60
+$java1 -jar $TRIMMOMATIC PE -threads 8 -phred33 -trimlog TRIMLOG.txt $f1 $f2 ${file_base}.end1_f.fastq ${file_base}.end1_ORPHAN.fastq ${file_base}.end2_f.fastq ${file_base}.end2_ORPHAN.fastq ILLUMINACLIP:$TRIM_ADAP:2:30:10 SLIDINGWINDOW:5:20 LEADING:20 TRAILING:20 MINLEN:60
 
 $f1=${file_base}.end1_f.fastq
 $f2=${file_base}.end2_f.fastq
 
 #Create contigs using SPAdes asembler
 
-$SPADES spades.py --rna -o ${file_base}.spades --pe1-1 $f1 --pe1-2 $f2
+$SPADES --rna -o ${file_base}.spades --pe1-1 $f1 --pe1-2 $f2
 
 #STOP AND ASSESS
 #
 #Determine protein level similarity of contigs using DIAMOND
-#NEED TO CREATE DIAMOND DATABASE FOR TRICHURIS TRICHURIA
 
-#$DIAMOND diamond blastx -d NCBI_NR -q SPADECONTIGSXXXX.fasta -o OUTPUTXXXX.m8
+$DIAMOND blastx -d $NCBI_NR -q transcripts.fasta -o capillaria_output.m8
+
+#Option to output .daa file that is compatable with MEGAN6
+$DIAMOND blastx -d $NCBI_NR -q transcripts.fasta -f 100
+
+#Made custom DIAMOND database by downloading protein.fa.gz files for all Clade1 nematodes as well as Homo_sapiens.GRCh38.pep.all.fa.gz.
+#Concatonated all .fa.gz files with cat *.fa.gz > Nem_C1_Human_Pep.fa.gz
+#Made DIAMOND database with makedb --in Nem_C1_Human_Pep.fa.gz -d Nem_C1_Human_Pep
+
+#Command used to blastx against custom database consisting of all Clade1 Nematdoes + Human genome peptide sequences
+
+$DIAMOND blastx -d $Nem_C1_Human_PEP -q transcripts.fasta -f 100 
+
+#Problem- can't reconcile gene names in protein files from worms and humans to NCBI nomenclature
